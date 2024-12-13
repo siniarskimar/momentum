@@ -1,11 +1,13 @@
 <script>
     import { DateTime, Interval } from "luxon";
 
-    const currDate = DateTime.now();
-    const startOfWeek = currDate.startOf("week");
-    const endOfWeek = currDate.endOf("week");
-    const firstVisibleDay = currDate.startOf("month").startOf("week");
-    const lastVisibleDay = currDate.endOf("month").endOf("week");
+    /** @type {{viewDate?: DateTime }} */
+    let { viewDate = $bindable(DateTime.now()) } = $props();
+
+    const startOfWeek = viewDate.startOf("week");
+    const endOfWeek = viewDate.endOf("week");
+    const firstVisibleDay = viewDate.startOf("month").startOf("week");
+    const lastVisibleDay = viewDate.endOf("month").endOf("week");
 
     const visibleDays = Interval.fromDateTimes(firstVisibleDay, lastVisibleDay)
         .splitBy({ days: 1 })
@@ -18,12 +20,6 @@
 
 <div class="container">
     <div class="topbar">
-        <div class="currdate">
-            {currDate.toJSDate().toLocaleDateString(undefined, {
-                month: "long",
-                year: "numeric",
-            })}
-        </div>
         {#each daysOfCurrWeek as day}
             <p class="weekday">
                 {day
@@ -33,18 +29,19 @@
         {/each}
     </div>
     {#each visibleDays as day}
-        <div class="day" class:exclusive={day?.month != currDate.month}>
+        <button class="day" class:exclusive={day?.month != viewDate.month}>
             <p class="day-number">{day?.day}</p>
-        </div>
+        </button>
     {/each}
 </div>
 
 <style>
     .container {
         height: 100%;
+        grid-column: 1 / -1;
 
         display: grid;
-        grid-template-rows: 4em repeat(6, minmax(5rem, 1fr));
+        grid-template-rows: auto repeat(6, minmax(5rem, 1fr));
         grid-template-columns: repeat(7, minmax(5rem, 1fr));
         grid-gap: 1px;
     }
@@ -60,28 +57,35 @@
         grid-template-rows: 1fr;
         grid-gap: 1px;
 
-        box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.5);
-
-        background-color: hsl(0, 0%, 100%);
         z-index: 2;
+        background-color: hsl(0, 0%, 100%);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .topbar {
+            color: #ffffff;
+            background-color: #0f0f0f98;
+        }
     }
 
     .topbar > p {
+        margin: 0;
+        height: 100%;
         text-align: center;
         box-shadow:
             1px 0px 0px 0px rgba(0, 0, 0, 0.1),
             -1px 0px 0px 0px rgba(0, 0, 0, 0.1);
     }
 
-    .currdate {
-        grid-column: 1 / -1;
-        text-align: center;
+    .topbar * {
+        user-select: none;
     }
 
     .day {
         position: relative;
 
         outline: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 0;
     }
 
     .day-number {
@@ -90,6 +94,13 @@
         left: 0.1rem;
 
         margin: 0;
+        user-select: none;
+        opacity: 0.6;
+        transition: 150ms ease-in-out opacity;
+    }
+
+    .day:hover .day-number {
+        opacity: 1;
     }
 
     .day.exclusive {
@@ -97,6 +108,6 @@
     }
 
     .day.exclusive .day-number {
-        color: rgba(40, 40, 40, 0.4);
+        opacity: 0.4;
     }
 </style>
