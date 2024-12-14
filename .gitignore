@@ -27,3 +27,6 @@ vite.config.ts.timestamp-*
 # Ignore all local history of files
 .history
 .ionide
+
+# Tauri generated files
+/src-tauri/gen/*
