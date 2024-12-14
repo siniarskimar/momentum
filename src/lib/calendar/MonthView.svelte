@@ -42,7 +42,7 @@
 
         display: grid;
         grid-template-rows: auto repeat(6, minmax(5rem, 1fr));
-        grid-template-columns: repeat(7, minmax(5rem, 1fr));
+        grid-template-columns: repeat(7, minmax(1rem, 1fr));
         grid-gap: 1px;
     }
 
