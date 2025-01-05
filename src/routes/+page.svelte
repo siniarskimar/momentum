@@ -2,7 +2,7 @@
   // import { invoke } from "@tauri-apps/api/core";
   import Calendar from "$lib/Calendar.svelte";
 
-  /**@type {import('$lib/types').CalendarView}*/
+  /**@type {import('$lib/ui').CalendarView}*/
   let calendarView = $state("month");
 </script>
 
@@ -12,7 +12,6 @@
 
 <style>
   .container {
-    display: grid;
     margin: 0;
     text-align: center;
     height: 100vh;
