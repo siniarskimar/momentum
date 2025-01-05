@@ -3,7 +3,7 @@
     import { DateTime } from "luxon";
 
     /** @type {{
-     *      view?: import('$lib/types').CalendarView,
+     *      view?: import('$lib/ui').CalendarView,
      *      date?: import('luxon').DateTime
      *  }}
      */
@@ -13,12 +13,6 @@
 
 <div class="container">
     <div class="topbar">
-        <p class="currdate">
-            {date.toJSDate().toLocaleDateString(undefined, {
-                month: "long",
-                year: "numeric",
-            })}
-        </p>
         <div class="viewselect">
             <button
                 class:view-selected={view == "month"}
@@ -33,6 +27,13 @@
                 }}>W</button
             >
         </div>
+        <p class="currdate">
+            {date.toJSDate().toLocaleDateString(undefined, {
+                month: "long",
+                year: "numeric",
+            })}
+        </p>
+        <div class="spacer"></div>
     </div>
     {#if view === "month"}
         <MonthView bind:viewDate={date} />
@@ -43,18 +44,18 @@
 
 <style>
     .container {
-        display: grid;
-        grid-template-columns: auto 10rem;
-        grid-template-rows: 2rem auto;
+        display: flex;
+        flex-direction: column;
         width: 100%;
         height: 100%;
     }
 
     .topbar {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: subgrid;
-        grid-template-rows: auto;
+        display: flex;
+    }
+
+    .topbar > * {
+        flex: 1;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -67,7 +68,7 @@
     .viewselect {
         display: flex;
         flex-direction: row;
-        justify-content: end;
+        justify-content: start;
         align-items: center;
     }
 
