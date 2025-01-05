@@ -58,15 +58,12 @@
     .container {
         position: relative;
         height: 100%;
-        grid-column: 1 / -1;
         
         display: flex;
         flex-direction: column;
     }
 
     .topbar {
-        grid-column: 1 / -1;
-
         position: sticky;
         top: 0;
 
