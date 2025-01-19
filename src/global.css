@@ -1,5 +1,6 @@
 :root {
   --color-bg: #1f1f1f;
+  --color-bg1: #2e2e2e;
   --color-text: #f6f6f6;
   --color-accent: #f28b16;
 }
@@ -7,6 +8,7 @@
 @media (prefers-color-scheme: light) {
   :root {
     --color-bg: #f6f6f6;
+    --color-bg1: #e2e2e2;
     --color-text: #0f0f0f;
   }
 }
