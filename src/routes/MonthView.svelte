@@ -1,29 +1,41 @@
 <script>
   import { DateTime, Interval } from "luxon";
 
-  /** @type {{viewDate?: DateTime }} */
-  let { viewDate = $bindable(DateTime.now()) } = $props();
+  /** @type {{
+      viewDate: import('luxon').DateTime,
+      onDayLabelClicked: (day: import('luxon').DateTime) => void
+    }}
+  */
+  let { viewDate = $bindable(DateTime.now()), onDayLabelClicked } = $props();
 
   const startOfWeek = viewDate.startOf("week");
   const endOfWeek = viewDate.endOf("week");
   const firstVisibleDay = viewDate.startOf("month").startOf("week");
   const lastVisibleDay = viewDate.endOf("month").endOf("week");
 
-  const visibleDays = /** @type{DateTime[]} */ (
+  const visibleDays = /** @type{DateTime[]} */ $derived(
     Interval.fromDateTimes(firstVisibleDay, lastVisibleDay)
       .splitBy({ days: 1 })
-      .map((d) => d.start)
+      .map((d) => d.start),
   );
 
   const visibleWeeks = /** @type{DateTime[]} */ (
-    Interval.fromDateTimes(firstVisibleDay, lastVisibleDay)
-      .splitBy({ weeks: 1 })
-      .map((i) => i.start)
+    $derived(
+      Interval.fromDateTimes(firstVisibleDay, lastVisibleDay)
+        .splitBy({ weeks: 1 })
+        .map((i) => i.start),
+    )
   );
 
-  const daysOfCurrWeek = Interval.fromDateTimes(startOfWeek, endOfWeek)
-    .splitBy({ days: 1 })
-    .map((d) => d.start);
+  const daysOfCurrWeek = $derived(
+    Interval.fromDateTimes(startOfWeek, endOfWeek)
+      .splitBy({ days: 1 })
+      .map((d) => d.start),
+  );
+
+  $effect(() => {
+    console.log(visibleWeeks);
+  });
 
   /**
    * @param {DateTime} start
@@ -40,17 +52,24 @@
 
 <div class="container">
   <div class="topbar">
-    {#each daysOfCurrWeek as day}
-      <p class="weekday">
-        {day?.toJSDate().toLocaleDateString(undefined, { weekday: "short" })}
-      </p>
-    {/each}
+    <div class="weekdays" role="row">
+      {#each daysOfCurrWeek as day}
+        <p class="weekday">
+          {day?.toJSDate().toLocaleDateString(undefined, { weekday: "short" })}
+        </p>
+      {/each}
+    </div>
   </div>
   {#each visibleWeeks as visibleWeek}
     <div class="day-row" role="row">
       {#each daysInWeek(visibleWeek) as day}
         <div class="day" class:exclusive={day?.month != viewDate.month}>
-          <button class="day-number">{day?.day}</button>
+          <button
+            class="day-number"
+            onclick={() => {
+              onDayLabelClicked(day);
+            }}>{day?.day}</button
+          >
         </div>
       {/each}
     </div>
@@ -71,25 +90,25 @@
     top: 0;
 
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 
     z-index: 2;
-    background-color: hsl(0, 0%, 100%);
+    background-color: var(--color-bg);
   }
 
-  .topbar > * {
+  .topbar * {
     user-select: none;
     flex: 1;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .topbar {
-      color: #ffffff;
-      background-color: #0f0f0f98;
-    }
+  .weekdays {
+    display: flex;
+    flex-direction: row;
   }
 
-  .topbar > p {
+  .weekday {
+    flex: 1;
+
     margin: 0;
     height: 100%;
     text-align: center;
