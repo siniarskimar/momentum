@@ -1,7 +1,14 @@
-# Tauri + SvelteKit
+# momentum
 
-This template should help get you started developing with Tauri and SvelteKit in Vite.
+_Time management calendar that helps you build momentum_
 
-## Recommended IDE Setup
+## Expected features
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+ - [ ] Calendar events
+ - [ ] Tasks
+ - [ ] Task deadlines (being a calendar event linked to task) 
+ - [ ] Reminders
+ - [ ] Android support
+ - [ ] Synchronization across devices
+      - [ ] though proxy
+      - [ ] peer to peer
