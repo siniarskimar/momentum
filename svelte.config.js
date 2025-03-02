@@ -2,15 +2,17 @@
 // so we will use adapter-static to prerender the app (SSG)
 // See: https://v2.tauri.app/start/frontend/sveltekit/ for more info
 import adapter from "@sveltejs/adapter-static";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  compilerOptions: {
-    runes: true
-  },
-  kit: {
-    adapter: adapter(),
-  },
+    preprocess: vitePreprocess(),
+    compilerOptions: {},
+    kit: {
+        adapter: adapter({
+            fallback: "index.html"
+        }),
+    },
 };
 
 export default config;

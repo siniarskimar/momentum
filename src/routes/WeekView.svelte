@@ -1,19 +1,14 @@
-<script>
+<script lang="ts">
   import { DateTime } from "luxon";
 
-  /**@type {{
-        viewDate: import('luxon').DateTime,
-        onMonthClicked: (start: import('luxon').DateTime) => void 
-    }}*/
-  let { viewDate = $bindable(DateTime.now()), onMonthClicked } = $props();
+  interface Props {
+    viewDate: DateTime;
+  }
+
+  let { viewDate = $bindable(DateTime.now()) }: Props = $props();
 </script>
 
-<div
-  class="week-view"
-  onclick={() => {
-    onMonthClicked(viewDate);
-  }}
->
+<div class="week-view">
   {viewDate.toString()}
 </div>
 

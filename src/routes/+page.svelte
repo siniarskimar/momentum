@@ -1,12 +1,12 @@
-<script>
-  import MonthView from "./MonthView.svelte";
-  import WeekView from "./WeekView.svelte";
+<script lang="ts">
+  import { invoke } from "@tauri-apps/api/core";
   import SettingsView from "./SettingsView.svelte";
   import { DateTime } from "luxon";
+  import CalendarView from "./CalendarView.svelte";
+  import Menu from "./Menu.svelte";
+  import type { GlobalView } from "$lib/ui";
 
-  /** @type {import('$lib/ui').GlobalView} */
-  let currentView = $state("month");
-
+  let currentView: GlobalView = $state(getLastSavedUiView());
   let viewDate = $state(DateTime.now());
 
   $effect(() => {
@@ -18,50 +18,24 @@
       }
     }
   });
+
+  function getLastSavedUiView(): GlobalView {
+    return (localStorage.getItem("last_ui_view") as GlobalView) || "calendar";
+  }
 </script>
 
-<main class="container">
-  {#if currentView === "month" || currentView === "week"}
-    <div class="topbar">
-      <p class="current-date">
-        {
-        viewDate.startOf('week')
-          ?.toJSDate()
-          .toLocaleDateString(undefined,
-            currentView === "month" ? 
-              { month: "long", year: "numeric" }
-              : { day: "numeric" , month: "numeric", year: "numeric"}
-          )
-        }
-      </p>
-    </div>
-  {/if}
-  {#if currentView === "month"}
-    <MonthView
-      bind:viewDate
-      onDayLabelClicked={(day) => {
-        currentView = "week";
-      }}
-    />
-  {:else if currentView === "week"}
-    <WeekView
-      bind:viewDate
-      onMonthClicked={(start) => {
-        currentView = "month";
-      }}
-    />
-  {:else if currentView === "settings"}
-    <SettingsView />
-  {/if}
+<div class="container">
+  <main>
+    <Menu bind:currentView />
+    {#if currentView === "calendar"}
+      <CalendarView />
+    {:else if currentView === "settings"}
+      <SettingsView />
+    {/if}
+  </main>
 
-  <div class="action-bar">
-    <div class="status-bar"></div>
-    <div class="controls">
-      <button>Add</button>
-      <button>Settings</button>
-    </div>
-  </div>
-</main>
+  <div class="status-bar"></div>
+</div>
 
 <style>
   .container {
@@ -73,7 +47,13 @@
     height: 100vh;
   }
 
-  .action-bar {
+  main {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+
+  .status-bar {
     height: 1.8em;
     padding-left: 0.5em;
     padding-right: 0.5em;
@@ -82,26 +62,12 @@
     background-color: var(--color-bg1);
   }
 
-  .action-bar > * {
-    flex: 1;
+  .status-bar button {
+    all: unset;
+    cursor: pointer;
   }
 
-  .controls {
-    display: flex;
-    justify-content: end;
-  }
-
-  .controls button {
-    padding: 0.2em;
-    margin: 0;
-  }
-
-  .topbar {
-    display: flex;
-    padding: 0 0.2em;
-  }
-
-  .current-date {
-    text-align: left;
+  .status-bar button:focus {
+    outline: black auto 0.3rem;
   }
 </style>

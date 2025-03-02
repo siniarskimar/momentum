@@ -77,7 +77,7 @@ button:hover {
 
 button:active {
   border-color: var(--color-accent);
-  background-color: hsl(from var(--color-bg) h s calc(l - .1));
+  background-color: hsl(from var(--color-bg) h s calc(l - 0.1));
 }
 
 #app-container {

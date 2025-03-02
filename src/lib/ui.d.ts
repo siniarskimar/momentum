@@ -1,1 +1,1 @@
-export type GlobalView = 'month' | 'week' | 'settings';
+export type GlobalView = "calendar" | "settings";

@@ -1,30 +1,29 @@
-<script>
+<script lang="ts">
   import { DateTime, Interval } from "luxon";
 
-  /** @type {{
-      viewDate: import('luxon').DateTime,
-      onDayLabelClicked: (day: import('luxon').DateTime) => void
-    }}
-  */
-  let { viewDate = $bindable(DateTime.now()), onDayLabelClicked } = $props();
+  interface Props {
+    viewDate: DateTime;
+    onDayLabelClicked: (day: DateTime) => void;
+  }
 
-  const startOfWeek = viewDate.startOf("week");
-  const endOfWeek = viewDate.endOf("week");
-  const firstVisibleDay = viewDate.startOf("month").startOf("week");
-  const lastVisibleDay = viewDate.endOf("month").endOf("week");
+  let { viewDate = $bindable(DateTime.now()), onDayLabelClicked }: Props =
+    $props();
 
-  const visibleDays = /** @type{DateTime[]} */ $derived(
+  const startOfWeek = $derived(viewDate.startOf("week"));
+  const endOfWeek = $derived(viewDate.endOf("week"));
+  const firstVisibleDay = $derived(viewDate.startOf("month").startOf("week"));
+  const lastVisibleDay = $derived(viewDate.endOf("month").endOf("week"));
+
+  const visibleDays = $derived(
     Interval.fromDateTimes(firstVisibleDay, lastVisibleDay)
       .splitBy({ days: 1 })
-      .map((d) => d.start),
+      .map((d) => d.start) as DateTime[],
   );
 
-  const visibleWeeks = /** @type{DateTime[]} */ (
-    $derived(
-      Interval.fromDateTimes(firstVisibleDay, lastVisibleDay)
-        .splitBy({ weeks: 1 })
-        .map((i) => i.start),
-    )
+  const visibleWeeks = $derived(
+    Interval.fromDateTimes(firstVisibleDay, lastVisibleDay)
+      .splitBy({ weeks: 1 })
+      .map((i) => i.start) as DateTime[],
   );
 
   const daysOfCurrWeek = $derived(
@@ -33,19 +32,18 @@
       .map((d) => d.start),
   );
 
-  $effect(() => {
-    console.log(visibleWeeks);
-  });
+  function daysInWeek(start: DateTime): DateTime[] {
+    return Interval.fromDateTimes(start.startOf("week"), start.endOf("week"))
+      .splitBy({ days: 1 })
+      .map((i) => i.start) as DateTime[];
+  }
 
-  /**
-   * @param {DateTime} start
-   * @returns {DateTime[]}
-   */
-  function daysInWeek(start) {
-    return /** @type {DateTime[]}*/ (
-      Interval.fromDateTimes(start.startOf("week"), start.endOf("week"))
-        .splitBy({ days: 1 })
-        .map((i) => i.start)
+  function isToday(datetime: DateTime): boolean {
+    const today = DateTime.now();
+    return (
+      datetime.day === today.day &&
+      datetime.month === today.month &&
+      datetime.year == today.year
     );
   }
 </script>
@@ -62,14 +60,16 @@
   </div>
   {#each visibleWeeks as visibleWeek}
     <div class="day-row" role="row">
-      {#each daysInWeek(visibleWeek) as day}
-        <div class="day" class:exclusive={day?.month != viewDate.month}>
+      {#each daysInWeek(visibleWeek) as daystamp}
+        <div class="day" class:exclusive={daystamp.month != viewDate.month}>
           <button
-            class="day-number"
-            onclick={() => {
-              onDayLabelClicked(day);
-            }}>{day?.day}</button
+            class="day-number-container"
+            onclick={() => onDayLabelClicked(daystamp)}
           >
+            <p class="day-number" class:day-today={isToday(daystamp)}>
+              {daystamp.day}
+            </p>
+          </button>
         </div>
       {/each}
     </div>
@@ -131,19 +131,37 @@
     border-radius: 0;
   }
 
-  .day-number {
+  .day-number-container {
     position: absolute;
     bottom: 0.01rem;
-    left: 0.1rem;
+    left: 0;
+    right: 0;
+    height: 2.5em;
+    padding: 0.1em;
 
-    background: transparent;
     border: none;
     box-shadow: none;
+    background: transparent;
+    margin: 0;
+  }
+
+  .day-number {
+    width: 2em;
+    height: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
 
     margin: 0;
     user-select: none;
     opacity: 0.6;
     transition: 150ms ease-in-out opacity;
+  }
+
+  .day-today {
+    background-color: var(--color-bg1);
   }
 
   .day:hover .day-number {
