@@ -1,14 +1,17 @@
-<script module>
-  export interface Props {
-    currentView: "calendar" | "settings";
-  }
-</script>
-
 <script lang="ts">
   import { slide } from "svelte/transition";
   import Icon from "@iconify/svelte";
+  import type { GlobalView, CalendarView } from "$lib/ui";
 
-  let { currentView = $bindable("calendar") }: Props = $props();
+  export interface Props {
+    currentView: GlobalView;
+    calendarView: CalendarView;
+  }
+
+  let {
+    currentView = $bindable("calendar"),
+    calendarView = $bindable("month"),
+  }: Props = $props();
 </script>
 
 <div class="app-menu">
@@ -20,6 +23,19 @@
   </button>
   {#if currentView == "calendar"}
     <div class="view-actions" transition:slide>
+      <button
+        class:active={calendarView == "month"}
+        onclick={() => (calendarView = "month")}
+      >
+        M
+      </button>
+      <button
+        class:active={calendarView == "week"}
+        onclick={() => (calendarView = "week")}
+      >
+        W
+      </button>
+
       <button>
         <Icon icon="basil:plus-solid" width="1.5em" height="1.5em" />
       </button>
@@ -88,5 +104,9 @@
   button.active + .view-actions {
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
+  }
+
+  .view-actions button.active {
+    background-color: var(--color-bg2);
   }
 </style>

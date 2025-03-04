@@ -1,17 +1,17 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
-  import SettingsView from "./SettingsView.svelte";
+  import SettingsPage from "./SettingsPage.svelte";
   import { DateTime } from "luxon";
-  import CalendarView from "./CalendarView.svelte";
+  import CalendarPage from "./CalendarPage.svelte";
   import Menu from "./Menu.svelte";
-  import type { GlobalView } from "$lib/ui";
+  import type { GlobalView, CalendarView } from "$lib/ui";
 
-  let currentView: GlobalView = $state(getLastSavedUiView());
-  let viewDate = $state(DateTime.now());
+  let currentPage: GlobalView = $state(getLastSavedUiView());
+  let calendarView: CalendarView = $state("month");
 
   $effect(() => {
     try {
-      localStorage.setItem("last_ui_view", currentView);
+      localStorage.setItem("last_ui_view", currentPage);
     } catch (err) {
       if (err instanceof DOMException) {
         console.warn(err.message); // not fatal
@@ -26,11 +26,11 @@
 
 <div class="container">
   <main>
-    <Menu bind:currentView />
-    {#if currentView === "calendar"}
-      <CalendarView />
-    {:else if currentView === "settings"}
-      <SettingsView />
+    <Menu bind:currentView={currentPage} bind:calendarView />
+    {#if currentPage === "calendar"}
+      <CalendarPage bind:calendarView />
+    {:else if currentPage === "settings"}
+      <SettingsPage />
     {/if}
   </main>
 
@@ -67,7 +67,7 @@
     cursor: pointer;
   }
 
-  .status-bar button:focus {
+  .status-bar button:is(:hover, :focus) {
     outline: black auto 0.3rem;
   }
 </style>

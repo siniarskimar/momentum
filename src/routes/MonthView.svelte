@@ -1,13 +1,23 @@
 <script lang="ts">
   import { DateTime, Interval } from "luxon";
+  import { getLocaleString } from "$lib/api";
 
   interface Props {
     viewDate: DateTime;
+    viewDateString: string | null;
     onDayLabelClicked: (day: DateTime) => void;
   }
 
-  let { viewDate = $bindable(DateTime.now()), onDayLabelClicked }: Props =
-    $props();
+  const dateTimeFormat = new Intl.DateTimeFormat(getLocaleString(), {
+    month: "long",
+    year: "numeric",
+  });
+
+  let {
+    viewDate = $bindable(DateTime.now()),
+    viewDateString = $bindable(null),
+    onDayLabelClicked,
+  }: Props = $props();
 
   const startOfWeek = $derived(viewDate.startOf("week"));
   const endOfWeek = $derived(viewDate.endOf("week"));
@@ -31,6 +41,10 @@
       .splitBy({ days: 1 })
       .map((d) => d.start),
   );
+
+  $effect(() => {
+    viewDateString = dateTimeFormat.format(viewDate.toJSDate());
+  });
 
   function daysInWeek(start: DateTime): DateTime[] {
     return Interval.fromDateTimes(start.startOf("week"), start.endOf("week"))
