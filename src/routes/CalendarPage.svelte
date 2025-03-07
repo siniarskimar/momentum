@@ -57,11 +57,11 @@
     <h2 class="date-display">{viewDateString}</h2>
     <div class="navigation">
       <button class="nav-left" onclick={navLeft}>
-        <Icon icon="basil:caret-left-solid" width="1.5em" height="1.5em" />
+        <Icon icon="basil:caret-left-solid" width="2em" height="2em" />
       </button>
       <button class="nav-now" onclick={navToday}>Today</button>
       <button class="nav-right" onclick={navRight}>
-        <Icon icon="basil:caret-right-solid" width="1.5em" height="1.5em" />
+        <Icon icon="basil:caret-right-solid" width="2em" height="2em" />
       </button>
     </div>
   </div>
@@ -86,7 +86,8 @@
   }
 
   .action-bar {
-    padding-left: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
     display: flex;
     flex-direction: row;
   }
@@ -99,6 +100,7 @@
 
   .navigation {
     display: flex;
+    align-items: center;
     margin: 0.5em;
     padding: 0.5em;
 
@@ -110,5 +112,12 @@
     background-color: transparent;
     box-shadow: none;
     border-radius: 0;
+
+    height: 2em;
+    aspect-ratio: 1 / 1;
+
+    padding: 0;
+
+    font-size: 1rem;
   }
 </style>

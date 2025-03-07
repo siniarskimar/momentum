@@ -2,6 +2,9 @@
   import { slide } from "svelte/transition";
   import Icon from "@iconify/svelte";
   import type { GlobalView, CalendarView } from "$lib/ui";
+  import { getContext } from "svelte";
+  import { push as modalPush } from "./Modals.svelte";
+  import AddCalendarObjectModal from "./AddCalendarObjectModal.svelte";
 
   export interface Props {
     currentView: GlobalView;
@@ -12,6 +15,8 @@
     currentView = $bindable("calendar"),
     calendarView = $bindable("month"),
   }: Props = $props();
+
+  const actions = getContext("actions");
 </script>
 
 <div class="app-menu">
@@ -35,18 +40,29 @@
       >
         W
       </button>
-
-      <button>
-        <Icon icon="basil:plus-solid" width="1.5em" height="1.5em" />
-      </button>
     </div>
   {/if}
+  <button
+    class:active={currentView == "tasks"}
+    onclick={() => (currentView = "tasks")}
+  >
+    <Icon icon="basil:checked-box-solid" width="1.5em" height="1.5em" />
+  </button>
   <button
     class:active={currentView == "settings"}
     onclick={() => (currentView = "settings")}
   >
     <Icon icon="basil:settings-alt-outline" width="1.5em" height="1.5em" />
   </button>
+  <div class="global-actions">
+    <button
+      onclick={() => {
+        modalPush(AddCalendarObjectModal, {});
+      }}
+    >
+      <Icon icon="basil:plus-solid" width="1.5em" height="1.5em" />
+    </button>
+  </div>
 </div>
 
 <style>
@@ -63,6 +79,12 @@
 
   .app-menu > * {
     margin-bottom: 0.1em;
+  }
+
+  .global-actions {
+    flex: 1;
+    display: flex;
+    align-items: end;
   }
 
   button {
