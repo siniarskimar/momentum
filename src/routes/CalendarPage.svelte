@@ -1,6 +1,6 @@
 <script lang="ts">
-  import MonthView from "./MonthView.svelte";
-  import WeekView from "./WeekView.svelte";
+  import MonthView from "$lib/calendar/MonthView.svelte";
+  import WeekView from "$lib/calendar/WeekView.svelte";
   import { DateTime } from "luxon";
   import Icon from "@iconify/svelte";
   import type { CalendarView } from "$lib/ui";
