@@ -1,10 +1,10 @@
 <script lang="ts">
   import SettingsPage from "./SettingsPage.svelte";
   import CalendarPage from "./CalendarPage.svelte";
-  import Menu from "./Menu.svelte";
+  import Menu from "$lib/Menu.svelte";
   import type { GlobalView, CalendarView } from "$lib/ui";
   import TasksPage from "./TasksPage.svelte";
-  import Modals from "./Modals.svelte";
+  import Modals from "$lib/Modals.svelte";
 
   let currentPage: GlobalView = $state(getLastSavedUiView());
   let calendarView: CalendarView = $state("month");
