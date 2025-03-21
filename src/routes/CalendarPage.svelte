@@ -4,6 +4,7 @@
   import { DateTime } from "luxon";
   import Icon from "@iconify/svelte";
   import type { CalendarView } from "$lib/ui";
+  import Today from "$lib/icon/Today.svelte";
 
   interface Props {
     calendarView: CalendarView;
@@ -57,11 +58,15 @@
     <h2 class="date-display">{viewDateString}</h2>
     <div class="navigation">
       <button class="nav-left" onclick={navLeft}>
-        <Icon icon="basil:caret-left-solid" width="2em" height="2em" />
+        <Icon icon="basil:caret-left-solid" width="1em" height="1em" />
       </button>
-      <button class="nav-now" onclick={navToday}>Today</button>
+
       <button class="nav-right" onclick={navRight}>
-        <Icon icon="basil:caret-right-solid" width="2em" height="2em" />
+        <Icon icon="basil:caret-right-solid" width="1em" height="1em" />
+      </button>
+
+      <button class="nav-now" onclick={navToday}>
+        <Today day={viewDate.day} width="1em" height="1em" />
       </button>
     </div>
   </div>
@@ -101,23 +106,22 @@
   .navigation {
     display: flex;
     align-items: center;
-    margin: 0.5em;
-    padding: 0.5em;
-
-    border-radius: 8px;
-    border: 1px solid black;
   }
 
   .navigation button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     background-color: transparent;
     box-shadow: none;
-    border-radius: 0;
+    border-radius: 4px;
 
-    height: 2em;
+    height: 2rem;
     aspect-ratio: 1 / 1;
 
     padding: 0;
 
-    font-size: 1rem;
+    font-size: 1.5rem;
   }
 </style>
