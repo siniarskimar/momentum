@@ -105,7 +105,6 @@
     display: flex;
     flex-direction: column;
 
-    z-index: 2;
     background-color: var(--color-bg);
   }
 
