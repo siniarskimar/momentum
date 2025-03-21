@@ -3,7 +3,7 @@
   import Icon from "@iconify/svelte";
   import type { GlobalView, CalendarView } from "$lib/ui";
   import { getContext } from "svelte";
-  import { push as modalPush } from "./Modals.svelte";
+  import { open as modalOpen } from "$lib/Modals.svelte";
   import AddCalendarObjectModal from "./AddCalendarObjectModal.svelte";
 
   export interface Props {
@@ -57,7 +57,7 @@
   <div class="global-actions">
     <button
       onclick={() => {
-        modalPush(AddCalendarObjectModal, {});
+        modalOpen(AddCalendarObjectModal, {});
       }}
     >
       <Icon icon="basil:plus-solid" width="1.5em" height="1.5em" />

@@ -1,50 +1,81 @@
 <script module lang="ts">
-  import type { Component as Comp } from "svelte";
+  import type { Component } from "svelte";
+  import { fade } from "svelte/transition";
 
-  interface ModalCtx {
-    Component: Comp;
+  export interface ModalProps {
+    close: () => void;
+  }
+
+  interface StackEntry {
+    Modal: Component<ModalProps>;
     args: Object;
+    id: number;
+    close: () => void;
   }
 
-  let stack = $state<ModalCtx[]>([]);
+  const modalStack = $state<StackEntry[]>([]);
+  let modalNextId = 0;
 
-  export function push(Component: Comp, args: Object) {
-    stack.push({ Component, args });
+  function close(id: number) {
+    const idx = modalStack.findIndex((v) => v.id === id);
+    if (idx === -1) {
+      console.warn("Tried to close a modal that doesn't exist");
+      return;
+    }
+    modalStack.splice(idx, 1);
   }
 
-  export function pop() {
-    if (stack.length == 0) throw new Error("Modal stack is empty");
-    stack.pop();
+  export function open(Modal: Component<ModalProps>, args: Object) {
+    const modalId = ++modalNextId;
+    const innerClose = () => {
+      close(modalId);
+    };
+
+    modalStack.push({ Modal, args, id: modalId, close: innerClose });
   }
 </script>
 
-{#if stack.length != 0}
-  <div class="modal-container">
-    {#each stack as { Component, args }}
-      <Component {...args}></Component>
+<script lang="ts">
+  function portal(node: HTMLElement) {
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.remove();
+      },
+    };
+  }
+</script>
+
+{#if modalStack.length > 0}
+  <div use:portal class="modals-container">
+    {#each modalStack as { Modal, args, close }}
+      <div class="backdrop" transition:fade></div>
+      <Modal {...args} {close} />
     {/each}
   </div>
 {/if}
 
 <style>
-  .modal-container {
-    position: absolute;
+  .modals-container {
+    position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;
     right: 0;
+    bottom: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 99;
+
+    z-index: 1;
+  }
+  .backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 
     background-color: rgba(0, 0, 0, 0.2);
-  }
-
-  :global(dialog) {
-    border-radius: 8px;
-    border: none;
-    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.5);
   }
 </style>

@@ -1,12 +1,15 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import Modals, { pop as modalPop } from "./Modals.svelte";
+  import type { ModalProps } from "$lib/Modals.svelte";
+
+  interface Props extends ModalProps {}
+
+  let { close }: Props = $props();
 
   let dialog: HTMLDialogElement | null = null;
 
   function onclose() {
     console.log(dialog);
-    modalPop();
+    close();
   }
 </script>
 
