@@ -6,8 +6,10 @@
     close: () => void;
   }
 
+  type ModalComponent = Component<ModalProps>;
+
   interface StackEntry {
-    Modal: Component<ModalProps>;
+    Modal: ModalComponent;
     args: Object;
     id: number;
     close: () => void;
@@ -25,7 +27,7 @@
     modalStack.splice(idx, 1);
   }
 
-  export function open(Modal: Component<ModalProps>, args: Object) {
+  export function open(Modal: ModalComponent, args: Object) {
     const modalId = ++modalNextId;
     const innerClose = () => {
       close(modalId);
