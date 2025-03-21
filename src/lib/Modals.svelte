@@ -51,7 +51,12 @@
 {#if modalStack.length > 0}
   <div use:portal class="modals-container">
     {#each modalStack as { Modal, args, close }}
-      <div class="backdrop" transition:fade></div>
+      <div
+        class="backdrop"
+        transition:fade|global={{ duration: 200 }}
+        role="presentation"
+        onclick={() => close()}
+      ></div>
       <Modal {...args} {close} />
     {/each}
   </div>
