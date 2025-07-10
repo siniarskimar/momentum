@@ -7,25 +7,9 @@ use crate::storage::SqliteStorage;
 pub fn setup_local_datadir(app: &mut tauri::App) -> anyhow::Result<()> {
     let datadir = get_local_datadir(&app)?;
 
-    let suffixes = &["events", "changelog"];
-
     let mut dir_builder = std::fs::DirBuilder::new();
     dir_builder.recursive(true);
-
-    for &suffix in suffixes {
-        let path = datadir.join(suffix);
-        println!("{:?}", path);
-
-        match std::fs::metadata(&path) {
-            Ok(_) => return Ok(()),
-            Err(err) => match err.kind() {
-                std::io::ErrorKind::NotFound => {
-                    dir_builder.create(&path)?;
-                }
-                _ => return Err(anyhow!(err).context("failed to stat local data directory")),
-            },
-        }
-    }
+    dir_builder.create(&datadir)?;
 
     return Ok(());
 }
