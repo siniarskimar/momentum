@@ -7,11 +7,6 @@ use app::GlobalState;
 mod hex;
 mod model;
 
-#[tauri::command]
-fn default_event() -> model::Event {
-    return model::Event::new("New event", chrono::Utc::now());
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -21,7 +16,7 @@ pub fn run() {
             app::setup_local_datadir(app)?;
             return Ok(());
         })
-        .invoke_handler(tauri::generate_handler![default_event])
+        .invoke_handler(tauri::generate_handler![])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
