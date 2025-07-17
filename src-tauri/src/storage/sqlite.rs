@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use chrono::DateTime;
-use rusqlite::{params, Connection, OptionalExtension, Row};
+use rusqlite::{params, Connection, OptionalExtension, Row, Transaction};
 
 static MIN_VERSION: u32 = 1;
 static MAX_VERSION: u32 = 1;
@@ -32,16 +32,20 @@ impl TryFrom<&rusqlite::Row<'_>> for MasterRow {
 }
 
 fn get_master_row(conn: &mut Connection) -> Result<Option<MasterRow>, rusqlite::Error> {
-    if !conn
-        .prepare("SELECT null FROM sqlite_master WHERE type='table' AND name = '_master'")?
-        .exists([])?
-    {
+    if !conn.table_exists(None, "_master")? {
         return Ok(None);
     }
 
     return conn
         .query_row("SELECT * FROM _master", [], |row| MasterRow::try_from(row))
         .optional();
+}
+
+/// Produce `count` number of placeholders
+pub fn repeat_var(count: usize) -> String {
+    let mut s = "?,".repeat(count);
+    s.pop();
+    return s;
 }
 
 impl SqliteStorage {
@@ -56,5 +60,36 @@ impl SqliteStorage {
         let master_row = get_master_row(&mut conn)?;
 
         return Ok(Self { conn });
+    }
+
+    pub fn open_memory() -> Result<Self, rusqlite::Error> {
+        let mut conn = Connection::open_in_memory()?;
+
+        {
+            let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Exclusive)?;
+            tx.execute_batch(BASE_SCHEMA)?;
+            tx.commit()?;
+        }
+
+        return Ok(Self { conn });
+    }
+
+    pub fn transaction<F, T, E>(&mut self, op: F) -> Result<T, E>
+    where
+        F: FnOnce(&Transaction) -> Result<T, E>,
+        E: std::convert::From<rusqlite::Error>,
+    {
+        let tx = self.conn.transaction()?;
+        let r = op(&tx)?;
+        tx.commit()?;
+        return Ok(r);
+    }
+
+    pub fn query<F, T, E>(&self, op: F) -> Result<T, E>
+    where
+        F: FnOnce(&Connection) -> Result<T, E>,
+        E: std::convert::From<rusqlite::Error>,
+    {
+        return op(&self.conn);
     }
 }

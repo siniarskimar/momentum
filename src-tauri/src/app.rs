@@ -22,12 +22,8 @@ pub fn get_local_datadir(app: &tauri::App) -> Result<PathBuf, tauri::Error> {
     return Ok(local_datadir);
 }
 
-pub fn load_events_in_range(app: &tauri::App) -> Result<Vec<Event>, std::io::Error> {
-    return Ok(vec![]);
-}
-
 pub struct GlobalState {
-    database: SqliteStorage,
+    pub database: SqliteStorage,
 }
 
 impl GlobalState {
@@ -36,7 +32,6 @@ impl GlobalState {
         datadir.push("calendar.db");
 
         let database = SqliteStorage::open_or_create(&datadir)?;
-
         return Ok(Self { database });
     }
 }
