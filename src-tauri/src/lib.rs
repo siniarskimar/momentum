@@ -33,7 +33,7 @@ pub fn run() {
 }
 
 #[tauri::command]
-pub fn get_intervals_between_dates(
+fn get_intervals_between_dates(
     state: tauri::State<Mutex<GlobalState>>,
     begins_at: i64,
     ends_at: i64,
@@ -50,7 +50,7 @@ pub fn get_intervals_between_dates(
 }
 
 #[tauri::command]
-pub fn create_event(
+fn create_event(
     state: tauri::State<Mutex<GlobalState>>,
     event: Event,
     intervals: Vec<Interval>,
@@ -81,7 +81,7 @@ pub fn create_event(
 }
 
 #[tauri::command]
-pub fn get_events(
+fn get_events(
     state: tauri::State<Mutex<GlobalState>>,
     ids: Vec<u64>,
 ) -> Result<Option<Event>, String> {
