@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 use tauri::Manager;
 
-use crate::model::Event;
 use crate::storage::SqliteStorage;
 
 pub fn setup_local_datadir(app: &mut tauri::App) -> anyhow::Result<()> {

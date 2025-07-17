@@ -3,8 +3,6 @@ use std::path::{Path, PathBuf};
 use chrono::DateTime;
 use rusqlite::{params, Connection, OptionalExtension, Row};
 
-use crate::model;
-
 static MIN_VERSION: u32 = 1;
 static MAX_VERSION: u32 = 1;
 static BASE_SCHEMA: &'static str = include_str!("schema.sql");

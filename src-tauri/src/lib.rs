@@ -5,7 +5,6 @@ mod app;
 use app::GlobalState;
 
 mod hex;
-mod model;
 mod storage;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
