@@ -7,7 +7,7 @@ use app::GlobalState;
 mod commands;
 use commands::*;
 
-mod hex;
+mod error;
 mod storage;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
