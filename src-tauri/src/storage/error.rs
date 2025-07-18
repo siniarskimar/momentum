@@ -1,5 +1,3 @@
-use serde::{ser::SerializeStruct, Serialize};
-
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, thiserror::Error)]

@@ -1,4 +1,4 @@
-use serde::{ser::SerializeStruct, Serialize};
+use serde::Serialize;
 use thiserror;
 
 use crate::storage;

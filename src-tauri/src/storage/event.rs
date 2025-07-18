@@ -1,8 +1,7 @@
-use chrono::format;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 
-use crate::storage::error::{Error, Result};
+use crate::storage::error::Result;
 use crate::storage::{sqlite::repeat_var, SqliteStorage};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
