@@ -1,7 +1,8 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
-use chrono::DateTime;
-use rusqlite::{params, Connection, OptionalExtension, Row, Transaction};
+use crate::storage::error;
+
+use rusqlite::{Connection, OptionalExtension, Transaction, TransactionBehavior};
 
 static MIN_VERSION: u32 = 1;
 static MAX_VERSION: u32 = 1;
@@ -31,7 +32,7 @@ impl TryFrom<&rusqlite::Row<'_>> for MasterRow {
     }
 }
 
-fn get_master_row(conn: &mut Connection) -> Result<Option<MasterRow>, rusqlite::Error> {
+fn get_master_row(conn: &Connection) -> Result<Option<MasterRow>, rusqlite::Error> {
     if !conn.table_exists(None, "_master")? {
         return Ok(None);
     }
@@ -48,28 +49,46 @@ pub fn repeat_var(count: usize) -> String {
     return s;
 }
 
+fn setup_base_schema(conn: &mut Connection) -> Result<MasterRow, rusqlite::Error> {
+    let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Exclusive)?;
+    tx.execute_batch(BASE_SCHEMA)?;
+    tx.commit()?;
+    return Ok(get_master_row(conn)?.unwrap());
+}
+
+fn upgrade_schema(_conn: &mut Connection, _current_version: u32) -> Result<(), rusqlite::Error> {
+    return Ok(());
+}
+
 impl SqliteStorage {
-    pub fn open_or_create(path: &Path) -> Result<Self, rusqlite::Error> {
+    pub fn open_or_create(path: &Path) -> error::Result<Self> {
         let mut conn = Connection::open(path)?;
-        let master_row = get_master_row(&mut conn)?;
+        let mut master_row = get_master_row(&mut conn)?;
         if master_row.is_none() {
-            let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Exclusive)?;
-            tx.execute_batch(BASE_SCHEMA)?;
-            tx.commit()?;
+            master_row = Some(setup_base_schema(&mut conn)?);
         }
-        let master_row = get_master_row(&mut conn)?;
+
+        let master_row = master_row.unwrap();
+        let schema_version = master_row.schema_version();
+        if schema_version > MIN_VERSION && schema_version < MAX_VERSION {
+            upgrade_schema(&mut conn, schema_version)?;
+        } else if schema_version < MIN_VERSION {
+            return Err(error::Error::SchemaTooOld);
+        } else
+        /* if schema_version > MAX_VERSION */
+        {
+            return Err(error::Error::Corrupted(String::from(
+                "schema version too new",
+            )));
+        }
 
         return Ok(Self { conn });
     }
 
     pub fn open_memory() -> Result<Self, rusqlite::Error> {
         let mut conn = Connection::open_in_memory()?;
-
-        {
-            let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Exclusive)?;
-            tx.execute_batch(BASE_SCHEMA)?;
-            tx.commit()?;
-        }
+        let master = setup_base_schema(&mut conn)?;
+        upgrade_schema(&mut conn, master.schema_version())?;
 
         return Ok(Self { conn });
     }
@@ -80,6 +99,21 @@ impl SqliteStorage {
         E: std::convert::From<rusqlite::Error>,
     {
         let tx = self.conn.transaction()?;
+        let r = op(&tx)?;
+        tx.commit()?;
+        return Ok(r);
+    }
+
+    pub fn transaction_with_behavior<F, T, E>(
+        &mut self,
+        behavior: TransactionBehavior,
+        op: F,
+    ) -> Result<T, E>
+    where
+        F: FnOnce(&Transaction) -> Result<T, E>,
+        E: std::convert::From<rusqlite::Error>,
+    {
+        let tx = self.conn.transaction_with_behavior(behavior)?;
         let r = op(&tx)?;
         tx.commit()?;
         return Ok(r);
