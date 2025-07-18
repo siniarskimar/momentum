@@ -2,6 +2,7 @@ use chrono::format;
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 
+use crate::storage::error::{Error, Result};
 use crate::storage::{sqlite::repeat_var, SqliteStorage};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,10 +21,10 @@ fn build_select(ids: &[u64]) -> String {
     );
 }
 
-pub fn select_events(conn: &Connection, ids: &[u64]) -> Result<Vec<Event>, rusqlite::Error> {
+pub fn select_events(conn: &Connection, ids: &[u64]) -> Result<Vec<Event>> {
     let mut stmt = conn.prepare(&build_select(ids))?;
 
-    return stmt
+    let r: rusqlite::Result<Vec<Event>> = stmt
         .query(rusqlite::params_from_iter(ids.iter()))?
         .mapped(|row| {
             Ok(Event {
@@ -32,9 +33,11 @@ pub fn select_events(conn: &Connection, ids: &[u64]) -> Result<Vec<Event>, rusql
             })
         })
         .collect();
+
+    return Ok(r?);
 }
 
-pub fn insert_event(conn: &Connection, event: &Event) -> Result<u64, rusqlite::Error> {
+pub fn insert_event(conn: &Connection, event: &Event) -> Result<u64> {
     let mut stmt = conn.prepare_cached(
         "
             INSERT INTO event(title)
@@ -47,7 +50,7 @@ pub fn insert_event(conn: &Connection, event: &Event) -> Result<u64, rusqlite::E
     return Ok(id);
 }
 
-pub fn insert_event_full(conn: &Connection, event: &Event) -> Result<(), rusqlite::Error> {
+pub fn insert_event_full(conn: &Connection, event: &Event) -> Result<()> {
     let mut stmt = conn.prepare_cached(
         "
             INSERT INTO event(id, title)
@@ -59,15 +62,15 @@ pub fn insert_event_full(conn: &Connection, event: &Event) -> Result<(), rusqlit
 }
 
 impl SqliteStorage {
-    pub fn select_events(&self, ids: &[u64]) -> Result<Vec<Event>, rusqlite::Error> {
+    pub fn select_events(&self, ids: &[u64]) -> Result<Vec<Event>> {
         return self.query(|conn| select_events(conn, ids));
     }
 
-    pub fn insert_event_full(&mut self, event: &Event) -> Result<(), rusqlite::Error> {
+    pub fn insert_event_full(&mut self, event: &Event) -> Result<()> {
         return self.query(|conn| insert_event_full(conn, event));
     }
 
-    pub fn insert_event(&mut self, event: &Event) -> Result<u64, rusqlite::Error> {
+    pub fn insert_event(&mut self, event: &Event) -> Result<u64> {
         return self.query(|conn| insert_event(conn, event));
     }
 }

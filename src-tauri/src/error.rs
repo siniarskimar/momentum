@@ -16,6 +16,9 @@ pub enum Error {
 
     #[error(transparent)]
     Io(#[from] std::io::Error),
+
+    #[error("command validation error: {0}")]
+    CommandValidation(String),
 }
 
 #[derive(Debug, Serialize)]
@@ -25,6 +28,7 @@ enum ErrorKind {
     Tauri(String),
     Storage(String),
     Io(String),
+    CommandValidation(String),
 }
 
 impl Serialize for Error {
@@ -37,8 +41,15 @@ impl Serialize for Error {
             Error::Io(_) => ErrorKind::Io(msg),
             Error::Tauri(_) => ErrorKind::Tauri(msg),
             Error::Storage(_) => ErrorKind::Storage(msg),
+            Error::CommandValidation(_) => ErrorKind::CommandValidation(msg),
         };
 
         kind.serialize(serializer)
+    }
+}
+
+impl From<rusqlite::Error> for Error {
+    fn from(value: rusqlite::Error) -> Self {
+        return Error::Storage(storage::error::Error::from(value));
     }
 }

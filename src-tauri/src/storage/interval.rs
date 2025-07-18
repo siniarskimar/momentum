@@ -2,7 +2,9 @@ use chrono::Utc;
 use rusqlite::{named_params, params, Connection};
 use serde::{Deserialize, Serialize};
 
-use crate::storage::SqliteStorage;
+use crate::storage::{error, SqliteStorage};
+
+use crate::storage::error::Result;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Interval {
@@ -16,7 +18,7 @@ pub struct Interval {
 impl TryFrom<&rusqlite::Row<'_>> for Interval {
     type Error = rusqlite::Error;
 
-    fn try_from(row: &rusqlite::Row) -> Result<Self, Self::Error> {
+    fn try_from(row: &rusqlite::Row) -> std::result::Result<Self, Self::Error> {
         Ok(Interval {
             id: row.get("id")?,
             begins_at: row.get("start_at")?,
@@ -124,10 +126,7 @@ impl IntervalQuery {
     }
 }
 
-pub fn select_intervals(
-    conn: &Connection,
-    query: &IntervalQuery,
-) -> Result<Vec<Interval>, rusqlite::Error> {
+pub fn select_intervals(conn: &Connection, query: &IntervalQuery) -> Result<Vec<Interval>> {
     let mut stmt = conn.prepare_cached(&query.build())?;
     return stmt
         .query(named_params! {
@@ -138,10 +137,11 @@ pub fn select_intervals(
             ":ref_id": query.references.as_ref().and_then(|x| Some(x.value()))
         })?
         .mapped(|row| Interval::try_from(row))
+        .map(|r| r.map_err(|e| error::Error::from(e)))
         .collect();
 }
 
-pub fn insert_interval(conn: &Connection, interval: &Interval) -> Result<u64, rusqlite::Error> {
+pub fn insert_interval(conn: &Connection, interval: &Interval) -> Result<u64> {
     let mut stmt = conn.prepare_cached(
         "
             INSERT INTO interval(start_at, end_at, ref_type, ref_id)
@@ -163,14 +163,11 @@ pub fn insert_interval(conn: &Connection, interval: &Interval) -> Result<u64, ru
 }
 
 impl SqliteStorage {
-    pub fn select_intervals(
-        &self,
-        query: &IntervalQuery,
-    ) -> Result<Vec<Interval>, rusqlite::Error> {
+    pub fn select_intervals(&self, query: &IntervalQuery) -> Result<Vec<Interval>> {
         return self.query(|conn| select_intervals(conn, query));
     }
 
-    pub fn insert_interval(&mut self, interval: &Interval) -> Result<u64, rusqlite::Error> {
+    pub fn insert_interval(&mut self, interval: &Interval) -> Result<u64> {
         return self.query(|conn| insert_interval(conn, interval));
     }
 }
