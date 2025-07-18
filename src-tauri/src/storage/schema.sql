@@ -1,6 +1,6 @@
 CREATE TABLE _master (
     schema_version INTEGER NOT NULL
-)
+);
 
 CREATE TABLE interval (
     id INTEGER PRIMARY KEY,
