@@ -70,7 +70,7 @@ impl SqliteStorage {
 
         let master_row = master_row.unwrap();
         let schema_version = master_row.schema_version();
-        if schema_version > MIN_VERSION && schema_version < MAX_VERSION {
+        if (MIN_VERSION..=MAX_VERSION).contains(&schema_version) {
             upgrade_schema(&mut conn, schema_version)?;
         } else if schema_version < MIN_VERSION {
             return Err(error::Error::SchemaTooOld);
