@@ -15,8 +15,6 @@
     currentView = $bindable("calendar"),
     calendarView = $bindable("month"),
   }: Props = $props();
-
-  const actions = getContext("actions");
 </script>
 
 <div class="app-menu">
@@ -26,22 +24,6 @@
   >
     <Icon icon="basil:calendar-solid" width="1.5em" height="1.5em" />
   </button>
-  {#if currentView == "calendar"}
-    <div class="view-actions" transition:slide>
-      <button
-        class:active={calendarView == "month"}
-        onclick={() => (calendarView = "month")}
-      >
-        M
-      </button>
-      <button
-        class:active={calendarView == "week"}
-        onclick={() => (calendarView = "week")}
-      >
-        W
-      </button>
-    </div>
-  {/if}
   <button
     class:active={currentView == "tasks"}
     onclick={() => (currentView = "tasks")}
@@ -104,31 +86,5 @@
 
   button:hover {
     background-color: var(--color-bg1);
-  }
-
-  button.active:has(+ .view-actions) {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    margin-bottom: 0;
-  }
-
-  .view-actions {
-    display: flex;
-    flex-direction: column;
-
-    background-color: var(--color-bg1);
-  }
-
-  .view-actions button {
-    background-color: transparent;
-  }
-
-  button.active + .view-actions {
-    border-bottom-right-radius: 8px;
-    border-bottom-left-radius: 8px;
-  }
-
-  .view-actions button.active {
-    background-color: var(--color-bg2);
   }
 </style>
