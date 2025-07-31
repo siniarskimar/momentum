@@ -1,7 +1,7 @@
 <script lang="ts">
   import MonthView from "$lib/calendar/MonthView.svelte";
   import WeekView from "$lib/calendar/WeekView.svelte";
-  import { DateTime } from "luxon";
+  import { DateTime, type DurationLike } from "luxon";
   import Icon from "@iconify/svelte";
   import type { CalendarView } from "$lib/ui";
   import Today from "$lib/icon/Today.svelte";
@@ -20,32 +20,23 @@
     calendarView = "week";
   }
 
-  function navLeft() {
-    switch (calendarView) {
+  function navigationAmount(view: CalendarView, amount: number): DurationLike {
+    switch (view) {
       case "month":
-        viewDate = viewDate.minus({ month: 1 });
-        break;
+        return { month: amount };
       case "week":
-        viewDate = viewDate.minus({ week: 1 });
-        break;
+        return { week: amount };
       case "day":
-        viewDate = viewDate.minus({ day: 1 });
-        break;
+        return { day: amount };
     }
   }
 
+  function navLeft() {
+    viewDate = viewDate.minus(navigationAmount(calendarView, 1));
+  }
+
   function navRight() {
-    switch (calendarView) {
-      case "month":
-        viewDate = viewDate.plus({ month: 1 });
-        break;
-      case "week":
-        viewDate = viewDate.plus({ week: 1 });
-        break;
-      case "day":
-        viewDate = viewDate.plus({ day: 1 });
-        break;
-    }
+    viewDate = viewDate.plus(navigationAmount(calendarView, 1));
   }
 
   function navToday() {
@@ -55,20 +46,30 @@
 
 <div class="container">
   <div class="action-bar">
-    <h2 class="date-display">{viewDateString}</h2>
-    <div class="navigation">
+    <nav class="date-nav">
       <button class="nav-left" onclick={navLeft}>
         <Icon icon="basil:caret-left-solid" width="1em" height="1em" />
-      </button>
-
-      <button class="nav-right" onclick={navRight}>
-        <Icon icon="basil:caret-right-solid" width="1em" height="1em" />
       </button>
 
       <button class="nav-now" onclick={navToday}>
         <Today day={viewDate.day} width="1em" height="1em" />
       </button>
-    </div>
+
+      <button class="nav-right" onclick={navRight}>
+        <Icon icon="basil:caret-right-solid" width="1em" height="1em" />
+      </button>
+    </nav>
+    <h2 class="date-display">{viewDateString}</h2>
+    <nav class="view-nav">
+      <button
+        class:active={calendarView === "month"}
+        onclick={() => (calendarView = "month")}>M</button
+      >
+      <button
+        class:active={calendarView === "week"}
+        onclick={() => (calendarView = "week")}>W</button
+      >
+    </nav>
   </div>
 
   {#if calendarView == "month"}
@@ -90,6 +91,18 @@
     flex-direction: column;
   }
 
+  nav button {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  nav button.active {
+    background-color: dar;
+  }
+
   .action-bar {
     padding-left: 1em;
     padding-right: 1em;
@@ -103,25 +116,42 @@
     display: inline-block;
   }
 
-  .navigation {
+  .date-nav {
     display: flex;
+    margin-right: 1.2rem;
     align-items: center;
   }
 
-  .navigation button {
+  .date-nav button {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    background-color: transparent;
-    box-shadow: none;
     border-radius: 4px;
 
-    height: 2rem;
-    aspect-ratio: 1 / 1;
-
-    padding: 0;
-
     font-size: 1.5rem;
+  }
+
+  .view-nav {
+    display: flex;
+    align-items: center;
+
+    --border-radius: 4px;
+    border-radius: var(--border-radius);
+  }
+
+  .view-nav button {
+    box-sizing: content-box;
+    border-radius: 0;
+    padding: 0 0.2rem;
+  }
+
+  .view-nav button:nth-child(1) {
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+  }
+
+  .view-nav button:last-child {
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
   }
 </style>
