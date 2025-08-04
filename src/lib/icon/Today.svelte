@@ -1,14 +1,20 @@
 <script lang="ts">
   interface Props {
     day: number;
-    width: string;
-    height: string;
+    width?: string;
+    height?: string;
   }
 
   const { day, width, height }: Props = $props();
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 20" {width} {height}>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 23 20"
+  {width}
+  {height}
+  class="iconify"
+>
   <g>
     <path
       fill-rule="evenodd"
