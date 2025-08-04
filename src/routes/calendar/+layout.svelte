@@ -1,46 +1,24 @@
 <script lang="ts">
-  import MonthView from "$lib/calendar/MonthView.svelte";
-  import WeekView from "$lib/calendar/WeekView.svelte";
   import { DateTime, type DurationLike } from "luxon";
   import Icon from "@iconify/svelte";
-  import type { CalendarView } from "$lib/ui";
   import Today from "$lib/icon/Today.svelte";
+  import { getActiveView, getViewDate } from "$lib/stores/calendar.svelte";
 
-  interface Props {
-    calendarView: CalendarView;
-  }
+  let { children } = $props();
 
-  let { calendarView = $bindable("month") }: Props = $props();
-
-  let viewDate: DateTime = $state(DateTime.now());
-  let viewDateString: string | null = $state(null);
-
-  function switchToWeek(day: DateTime) {
-    viewDate = day.startOf("week");
-    calendarView = "week";
-  }
-
-  function navigationAmount(view: CalendarView, amount: number): DurationLike {
-    switch (view) {
-      case "month":
-        return { month: amount };
-      case "week":
-        return { week: amount };
-      case "day":
-        return { day: amount };
-    }
-  }
+  let viewDate = getViewDate();
+  let activeView = getActiveView();
 
   function navLeft() {
-    viewDate = viewDate.minus(navigationAmount(calendarView, 1));
+    viewDate.forwards();
   }
 
   function navRight() {
-    viewDate = viewDate.plus(navigationAmount(calendarView, 1));
+    viewDate.backwards();
   }
 
   function navToday() {
-    viewDate = DateTime.now().startOf("day");
+    viewDate.date = DateTime.now().startOf("day");
   }
 </script>
 
@@ -52,38 +30,26 @@
       </button>
 
       <button class="nav-now" onclick={navToday}>
-        <Today day={viewDate.day} />
+        <Today day={viewDate.date.day} />
       </button>
 
       <button class="nav-right" onclick={navRight}>
         <Icon icon="basil:caret-right-solid" />
       </button>
     </nav>
-    <h2 class="date-display">{viewDateString}</h2>
+    <h2 class="date-display">{viewDate.format}</h2>
     <nav class="view-nav">
-      <button
-        class:active={calendarView === "month"}
-        onclick={() => (calendarView = "month")}
-      >
-        <Icon icon="bx:columns" />
-      </button>
-      <button
-        class:active={calendarView === "week"}
-        onclick={() => (calendarView = "week")}>
+      <a href="./month" class:active={activeView.view === "month"}>
         <Icon icon="fa:table" />
-      </button>
+      </a>
+      <a href="./week" class:active={activeView.view === "week"}>
+        <Icon icon="bx:columns" />
+      </a>
     </nav>
   </div>
-
-  {#if calendarView == "month"}
-    <MonthView
-      bind:viewDate
-      bind:viewDateString
-      onDayLabelClicked={switchToWeek}
-    />
-  {:else if calendarView == "week"}
-    <WeekView bind:viewDate bind:viewDateString />
-  {/if}
+  <div class="calendar-view">
+    {@render children()}
+  </div>
 </div>
 
 <style>
@@ -92,6 +58,10 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+  }
+
+  .calendar-view {
+    height: 100%;
   }
 
   button {
@@ -139,18 +109,18 @@
     border-radius: var(--border-radius);
   }
 
-  .view-nav button {
+  .view-nav a {
     box-sizing: content-box;
     border-radius: 0;
     padding: 0 0.2rem;
   }
 
-  .view-nav button:nth-child(1) {
+  .view-nav a:nth-child(1) {
     border-top-left-radius: var(--border-radius);
     border-bottom-left-radius: var(--border-radius);
   }
 
-  .view-nav button:last-child {
+  .view-nav a:last-child {
     border-top-right-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
   }

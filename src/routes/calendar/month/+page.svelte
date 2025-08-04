@@ -1,28 +1,15 @@
 <script lang="ts">
+  import { getViewDate } from "$lib/stores/calendar.svelte";
   import { DateTime, Interval } from "luxon";
-  import { getLocaleString } from "$lib/api";
 
-  interface Props {
-    viewDate: DateTime;
-    viewDateString: string | null;
-    onDayLabelClicked: (day: DateTime) => void;
-  }
+  const viewDate = getViewDate();
 
-  const dateTimeFormat = new Intl.DateTimeFormat(getLocaleString(), {
-    month: "long",
-    year: "numeric",
-  });
-
-  let {
-    viewDate = $bindable(DateTime.now()),
-    viewDateString = $bindable(null),
-    onDayLabelClicked,
-  }: Props = $props();
-
-  const startOfWeek = $derived(viewDate.startOf("week"));
-  const endOfWeek = $derived(viewDate.endOf("week"));
-  const firstVisibleDay = $derived(viewDate.startOf("month").startOf("week"));
-  const lastVisibleDay = $derived(viewDate.endOf("month").endOf("week"));
+  const startOfWeek = $derived(viewDate.date.startOf("week"));
+  const endOfWeek = $derived(viewDate.date.endOf("week"));
+  const firstVisibleDay = $derived(
+    viewDate.date.startOf("month").startOf("week"),
+  );
+  const lastVisibleDay = $derived(viewDate.date.endOf("month").endOf("week"));
 
   const visibleDays = $derived(
     Interval.fromDateTimes(firstVisibleDay, lastVisibleDay)
@@ -42,10 +29,6 @@
       .map((d) => d.start),
   );
 
-  $effect(() => {
-    viewDateString = dateTimeFormat.format(viewDate.toJSDate());
-  });
-
   function daysInWeek(start: DateTime): DateTime[] {
     return Interval.fromDateTimes(start.startOf("week"), start.endOf("week"))
       .splitBy({ days: 1 })
@@ -60,6 +43,8 @@
       datetime.year == today.year
     );
   }
+
+  function onDayLabelClicked(date: DateTime) {}
 </script>
 
 <div class="container">
@@ -75,7 +60,10 @@
   {#each visibleWeeks as visibleWeek}
     <div class="day-row" role="row">
       {#each daysInWeek(visibleWeek) as daystamp}
-        <div class="day" class:exclusive={daystamp.month != viewDate.month}>
+        <div
+          class="day"
+          class:exclusive={daystamp.month != viewDate.date.month}
+        >
           <button
             class="day-number-container"
             onclick={() => onDayLabelClicked(daystamp)}
