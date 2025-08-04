@@ -63,12 +63,15 @@
     <nav class="view-nav">
       <button
         class:active={calendarView === "month"}
-        onclick={() => (calendarView = "month")}>M</button
+        onclick={() => (calendarView = "month")}
       >
+        <Icon icon="bx:columns" />
+      </button>
       <button
         class:active={calendarView === "week"}
-        onclick={() => (calendarView = "week")}>W</button
-      >
+        onclick={() => (calendarView = "week")}>
+        <Icon icon="fa:table" />
+      </button>
     </nav>
   </div>
 
@@ -91,16 +94,18 @@
     flex-direction: column;
   }
 
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   nav button {
     width: 2rem;
     height: 2rem;
     padding: 0;
     background-color: transparent;
     box-shadow: none;
-  }
-
-  nav button.active {
-    background-color: dar;
   }
 
   .action-bar {
@@ -124,11 +129,6 @@
 
   .date-nav button {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-
-    font-size: 1.5rem;
   }
 
   .view-nav {
