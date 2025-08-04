@@ -88,3 +88,9 @@ button:active {
   isolation: isolate;
   display: contents;
 }
+
+/* default size for Iconify icons */
+.iconify {
+  width: 1rem;
+  height: 1rem;
+}
