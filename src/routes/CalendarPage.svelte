@@ -48,15 +48,15 @@
   <div class="action-bar">
     <nav class="date-nav">
       <button class="nav-left" onclick={navLeft}>
-        <Icon icon="basil:caret-left-solid" width="1em" height="1em" />
+        <Icon icon="basil:caret-left-solid" />
       </button>
 
       <button class="nav-now" onclick={navToday}>
-        <Today day={viewDate.day} width="1em" height="1em" />
+        <Today day={viewDate.day} />
       </button>
 
       <button class="nav-right" onclick={navRight}>
-        <Icon icon="basil:caret-right-solid" width="1em" height="1em" />
+        <Icon icon="basil:caret-right-solid" />
       </button>
     </nav>
     <h2 class="date-display">{viewDateString}</h2>

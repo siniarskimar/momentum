@@ -1,8 +1,6 @@
 <script lang="ts">
-  import { slide } from "svelte/transition";
   import Icon from "@iconify/svelte";
   import type { GlobalView, CalendarView } from "$lib/ui";
-  import { getContext } from "svelte";
   import { open as modalOpen } from "$lib/Modals.svelte";
   import AddCalendarObjectModal from "./AddCalendarObjectModal.svelte";
 
@@ -86,5 +84,10 @@
 
   button:hover {
     background-color: var(--color-bg1);
+  }
+
+  .app-menu :global(.iconify), .app-menu :global(.icon) {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 </style>
